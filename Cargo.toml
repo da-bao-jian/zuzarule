@@ -1,0 +1,19 @@
+[package]
+name = "tg-bot"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+teloxide = { version = "0.12", features = ["macros"] }
+log = "0.4"
+tokio = { version =  "1.8", features = ["rt-multi-thread", "macros", "test-util"] }
+anyhow = "1.0.75"
+env_logger = "0.10.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dotenv = "0.15.0"
+hashbrown = "0.14.2"
+lazy_static = "1.4.0"
+parking_lot = "0.12.1"

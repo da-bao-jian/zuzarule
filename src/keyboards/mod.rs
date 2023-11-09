@@ -2,7 +2,7 @@ pub mod create_new_proposal_keyboard;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 use crate::consts::{
-    CLOSE, DESCRIPTION, EXPIRATION_DATE, MAIN_MENU, STARTING_DATE, SUBMIT_PROPOSAL, TITLE,
+    CLOSE, CREATE_A_PROPOSAL, DESCRIPTION, EXPIRATION_DATE, MAIN_MENU, STARTING_DATE, TITLE,
 };
 
 /// Default layout for the keyboard
@@ -29,7 +29,7 @@ pub fn add_emoji(text: &str) -> String {
         DESCRIPTION => format!("✅ {}", text),
         STARTING_DATE => format!("✅ {}", text),
         EXPIRATION_DATE => format!("✅{}", text),
-        SUBMIT_PROPOSAL => format!("✅{}", text),
+        CREATE_A_PROPOSAL => format!("✅{}", text),
         _ => text.to_string(),
     };
     button

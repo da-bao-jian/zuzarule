@@ -1,6 +1,5 @@
-#![allow(dead_code)]
 use crate::consts::{
-    CLOSE, DESCRIPTION, EXPIRATION_DATE, MAIN_MENU, STARTING_DATE, SUBMIT_PROPOSAL, TITLE,
+    CLOSE, DESCRIPTION, EXPIRATION_DATE, MAIN_MENU, STARTING_DATE, SUBMIT_A_PROPOSAL, TITLE,
 };
 use crate::keyboards::add_emoji;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
@@ -31,28 +30,10 @@ impl<'a> CreateNewProposalKeyboard<'a> {
             t if t == EXPIRATION_DATE || t == add_emoji(EXPIRATION_DATE).as_str() => {
                 Self::ExpirationDate(text)
             }
-            t if t == SUBMIT_PROPOSAL || t == add_emoji(SUBMIT_PROPOSAL).as_str() => {
+            t if t == SUBMIT_A_PROPOSAL || t == add_emoji(SUBMIT_A_PROPOSAL).as_str() => {
                 Self::SubmitProposal(text)
             }
             _ => Self::MainMenu,
-        }
-    }
-
-    pub fn toggle(&self) -> String {
-        match self {
-            Self::Title(text) => self.toggle_text(text, TITLE),
-            Self::Description(text) => self.toggle_text(text, DESCRIPTION),
-            Self::StartingDate(text) => self.toggle_text(text, STARTING_DATE),
-            Self::ExpirationDate(text) => self.toggle_text(text, EXPIRATION_DATE),
-            _ => format!("{:?}", self),
-        }
-    }
-
-    fn toggle_text(&self, current: &str, default: &str) -> String {
-        if current == default {
-            add_emoji(default)
-        } else {
-            default.to_string()
         }
     }
 }
@@ -102,12 +83,11 @@ fn create_buy_keyboard(
 
     // 6th row
     keyboard = keyboard.append_row(vec![match expiration_date {
-        true => {
-            InlineKeyboardButton::callback(add_emoji(SUBMIT_PROPOSAL), add_emoji(SUBMIT_PROPOSAL))
-        }
-        false => {
-            InlineKeyboardButton::callback(SUBMIT_PROPOSAL.to_owned(), SUBMIT_PROPOSAL.to_owned())
-        }
+        true => InlineKeyboardButton::callback(
+            add_emoji(SUBMIT_A_PROPOSAL),
+            add_emoji(SUBMIT_A_PROPOSAL),
+        ),
+        false => InlineKeyboardButton::callback(SUBMIT_A_PROPOSAL, SUBMIT_A_PROPOSAL.to_owned()),
     }]);
 
     Ok(keyboard)

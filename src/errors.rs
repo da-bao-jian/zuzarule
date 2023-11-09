@@ -1,4 +1,5 @@
 use std::fmt;
+use teloxide::dispatching::dialogue::InMemStorageError;
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -7,6 +8,7 @@ pub enum TgError {
     Parse(String),
     TeloxideRequest(teloxide::RequestError),
     UnmatchedQuery(teloxide::types::CallbackQuery),
+    TeloxideInMemStorageError(InMemStorageError),
     NoQueryData(teloxide::types::CallbackQuery),
     NoQueryMessage(teloxide::types::CallbackQuery),
     UserNotFound(teloxide::types::Message),
@@ -16,6 +18,9 @@ impl fmt::Display for TgError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Self::Parse(ref err) => write!(f, "Parse error: {}", err),
+            Self::TeloxideInMemStorageError(ref err) => {
+                write!(f, "InMemStorage error: {}", err)
+            }
             Self::TeloxideRequest(ref err) => {
                 write!(f, "Telegram request error: {}", err)
             }
@@ -48,17 +53,8 @@ impl From<anyhow::Error> for TgError {
     }
 }
 
-/// Dialogue state
-#[allow(dead_code)]
-#[derive(Clone, Debug, Default)]
-pub enum PromptDialogueState {
-    #[default]
-    BuyStartAddressPrompt,
-    BuyAddressReceived,
-    BuyTokenNameReceived,
-    ReceiveStartAddressPrompt,
-    ReceiveAddressReceived,
-    ReceiveTokenNameReceived,
-    StartBuyAmountPrompt,
-    BuyAmountReceived,
+impl From<InMemStorageError> for TgError {
+    fn from(err: InMemStorageError) -> Self {
+        Self::TeloxideInMemStorageError(err)
+    }
 }

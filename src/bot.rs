@@ -1,12 +1,16 @@
 use crate::consts::{CREATE_A_PROPOSAL, MAIN_MENU, SEE_PROPOSALS};
-use crate::errors::TgError;
 use crate::handler::callback_handlers::{
-    handle_menu_callback, handle_new_proposal_callback, handle_see_proposals_callback,
-    handle_title_callback,
+    handle_menu_callback, handle_new_proposal_callback, handle_proposal_fields_callback,
+    handle_see_proposals_callback, handle_submit_proposal_callback,
+};
+use crate::handler::dialogue_handlers::{
+    receive_description_handler, receive_expiration_date_handler, receive_starting_date_handler,
+    receive_title_handler, start_title_dialogue_handler, DialogueState,
 };
 use crate::handler::{match_sub_menu, SubMenuType};
 use crate::storage::{TgMessage, TgMessageStorage, GLOBAL_MAIN_MENU_STORAGE};
 use crate::utils::delete_previous_messages;
+use crate::TgError;
 use crate::{
     keyboards::{create_new_proposal_keyboard::CreateNewProposalKeyboard, menu_keyboard},
     messages::get_welcome_message,
@@ -16,7 +20,7 @@ use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
 use teloxide::{
-    dispatching::{HandlerExt, UpdateFilterExt},
+    dispatching::{dialogue::InMemStorage, HandlerExt, UpdateFilterExt},
     dptree,
     error_handlers::LoggingErrorHandler,
     payloads::SendMessageSetters,
@@ -58,12 +62,36 @@ impl TgBot {
                     .filter_command::<Command>()
                     .endpoint(command_callback),
             )
-            .branch(Update::filter_callback_query().endpoint(button_callback));
+            .branch(Update::filter_callback_query().endpoint(button_callback))
+            .branch(
+                Update::filter_message()
+                    .enter_dialogue::<Message, InMemStorage<DialogueState>, DialogueState>()
+                    .branch(
+                        dptree::case![DialogueState::StartTitlePrompt]
+                            .endpoint(start_title_dialogue_handler),
+                    )
+                    .branch(
+                        dptree::case![DialogueState::TitleReceived].endpoint(receive_title_handler),
+                    )
+                    .branch(
+                        dptree::case![DialogueState::DescriptionReceived]
+                            .endpoint(receive_description_handler),
+                    )
+                    .branch(
+                        dptree::case![DialogueState::StartingDateReceived]
+                            .endpoint(receive_starting_date_handler),
+                    )
+                    .branch(
+                        dptree::case![DialogueState::ExpirationDateReceived]
+                            .endpoint(receive_expiration_date_handler),
+                    ),
+            );
 
         Dispatcher::builder(self.bot, handler)
             .error_handler(LoggingErrorHandler::with_custom_text(
                 "An error has occurred in the dispatcher",
             ))
+            .dependencies(dptree::deps![InMemStorage::<DialogueState>::new()])
             .enable_ctrlc_handler()
             .build()
             .dispatch()
@@ -127,7 +155,11 @@ async fn command_callback(bot: Bot, cmd: Command, msg: Message) -> Result<(), Tg
     Ok(())
 }
 
-async fn button_callback(bot: Bot, q: CallbackQuery) -> Result<(), TgError> {
+async fn button_callback(
+    bot: Bot,
+    q: CallbackQuery,
+    storage: Arc<InMemStorage<DialogueState>>,
+) -> Result<(), TgError> {
     if let Some(action) = &q.data {
         match action.as_str() {
             CREATE_A_PROPOSAL => handle_new_proposal_callback(&bot, &q).await?,
@@ -137,9 +169,48 @@ async fn button_callback(bot: Bot, q: CallbackQuery) -> Result<(), TgError> {
                 Some(SubMenuType::CreateNewProposal) => {
                     match CreateNewProposalKeyboard::new(action) {
                         CreateNewProposalKeyboard::Title(_) => {
-                            handle_title_callback(&bot, &q).await?
+                            handle_proposal_fields_callback(
+                                &bot,
+                                DialogueState::TitleReceived,
+                                &q,
+                                storage,
+                                CreateNewProposalKeyboard::Title(""),
+                            )
+                            .await?
                         }
-
+                        CreateNewProposalKeyboard::Description(_) => {
+                            handle_proposal_fields_callback(
+                                &bot,
+                                DialogueState::DescriptionReceived,
+                                &q,
+                                storage,
+                                CreateNewProposalKeyboard::Description(""),
+                            )
+                            .await?
+                        }
+                        CreateNewProposalKeyboard::StartingDate(_) => {
+                            handle_proposal_fields_callback(
+                                &bot,
+                                DialogueState::StartingDateReceived,
+                                &q,
+                                storage,
+                                CreateNewProposalKeyboard::StartingDate(""),
+                            )
+                            .await?
+                        }
+                        CreateNewProposalKeyboard::ExpirationDate(_) => {
+                            handle_proposal_fields_callback(
+                                &bot,
+                                DialogueState::ExpirationDateReceived,
+                                &q,
+                                storage,
+                                CreateNewProposalKeyboard::ExpirationDate(""),
+                            )
+                            .await?
+                        }
+                        CreateNewProposalKeyboard::SubmitProposal(_) => {
+                            handle_submit_proposal_callback(&bot, &q).await?
+                        }
                         _ => {}
                     }
                 }

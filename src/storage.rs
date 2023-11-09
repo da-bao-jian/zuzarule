@@ -12,12 +12,7 @@ lazy_static! {
 
 lazy_static! {
     /// Used to locate the buy menu location
-    pub(crate) static ref GLOBAL_BUY_MENU_STORAGE: BuyMenuStorage = TgMessageStorage::new();
-}
-
-lazy_static! {
-    /// Used to locate the sell menu location
-    pub(crate) static ref GLOBAL_SELL_MENU_STORAGE: SellMenuStorage = TgMessageStorage::new();
+    pub(crate) static ref GLOBAL_CREATE_PROPOSAL_STORAGE: BuyMenuStorage = TgMessageStorage::new();
 }
 
 pub(crate) trait TgMessageStorage {

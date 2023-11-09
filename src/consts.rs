@@ -1,4 +1,6 @@
 pub const CREATE_A_PROPOSAL: &str = "Create a Proposal";
+pub const SUBMIT_A_PROPOSAL: &str = "Submit a Proposal";
+pub const BOT_NAME: &str = "zuzarule_bot";
 pub const SEE_PROPOSALS: &str = "See Proposals";
 pub const MAIN_MENU: &str = "Main Menu";
 pub const CLOSE: &str = "Close";
@@ -6,4 +8,3 @@ pub const TITLE: &str = "Title";
 pub const DESCRIPTION: &str = "Description";
 pub const STARTING_DATE: &str = "Starting Date";
 pub const EXPIRATION_DATE: &str = "Expiration Date";
-pub const SUBMIT_PROPOSAL: &str = "Submit Proposal";

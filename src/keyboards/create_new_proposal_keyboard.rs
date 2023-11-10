@@ -38,7 +38,7 @@ impl<'a> CreateNewProposalKeyboard<'a> {
     }
 }
 
-fn create_buy_keyboard(
+fn create_proposal_keyboard(
     title: bool,
     description: bool,
     starting_date: bool,
@@ -99,7 +99,7 @@ pub fn new_proporsal_keyboard(
     starting_date: bool,
     expiration_date: bool,
 ) -> anyhow::Result<InlineKeyboardMarkup> {
-    match create_buy_keyboard(title, description, starting_date, expiration_date) {
+    match create_proposal_keyboard(title, description, starting_date, expiration_date) {
         Ok(keyboard) => Ok(keyboard),
         _ => Err(anyhow::anyhow!("Error creating keyboard")),
     }

@@ -8,3 +8,5 @@ pub const TITLE: &str = "Title";
 pub const DESCRIPTION: &str = "Description";
 pub const STARTING_DATE: &str = "Starting Date";
 pub const EXPIRATION_DATE: &str = "Expiration Date";
+pub const THUMB_UP: &str = "👍";
+pub const THUMB_DOWN: &str = "👎";

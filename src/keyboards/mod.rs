@@ -1,4 +1,5 @@
 pub mod create_new_proposal_keyboard;
+pub mod see_proposals_keyboard;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 use crate::consts::{

@@ -18,7 +18,7 @@ pub async fn main() -> Result<(), TgError> {
         .with_env_filter(EnvFilter::from_default_env())
         .init();
 
-    log::info!("Starting buttons bot...");
+    log::info!("Starting bot...");
 
     let bot = bot::TgBot::new();
     let _ = bot.init().await;

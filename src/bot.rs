@@ -1,13 +1,14 @@
 use crate::consts::{CREATE_A_PROPOSAL, MAIN_MENU, SEE_PROPOSALS};
 use crate::handler::callback_handlers::{
     handle_menu_callback, handle_new_proposal_callback, handle_proposal_fields_callback,
-    handle_see_proposals_callback, handle_submit_proposal_callback,
+    handle_see_proposals_callback, handle_submit_proposal_callback, handle_thumb_up_callback,
 };
 use crate::handler::dialogue_handlers::{
     receive_description_handler, receive_expiration_date_handler, receive_starting_date_handler,
     receive_title_handler, start_title_dialogue_handler, DialogueState,
 };
 use crate::handler::{match_sub_menu, SubMenuType};
+use crate::keyboards::see_proposals_keyboard::SeeProposalsKeyboard;
 use crate::storage::{TgMessage, TgMessageStorage, GLOBAL_MAIN_MENU_STORAGE};
 use crate::utils::delete_previous_messages;
 use crate::TgError;
@@ -208,15 +209,14 @@ async fn button_callback(
                             )
                             .await?
                         }
-                        CreateNewProposalKeyboard::SubmitProposal(_) => {
-                            handle_submit_proposal_callback(&bot, &q).await?
-                        }
-                        _ => {}
+                        _ => handle_submit_proposal_callback(&bot, &q).await?,
                     }
                 }
-                Some(SubMenuType::SeeProposals) => {
-                    todo!()
-                }
+                Some(SubMenuType::SeeProposals) => match SeeProposalsKeyboard::new(action) {
+                    SeeProposalsKeyboard::ThumbUp => {
+                        handle_thumb_up_callback(&bot, &q, SeeProposalsKeyboard::ThumbUp).await?
+                    }
+                },
                 _ => {}
             },
         }
